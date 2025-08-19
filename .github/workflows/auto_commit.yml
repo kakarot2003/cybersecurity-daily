@@ -1,27 +1,3 @@
-name: Daily AI Commit
-
-on:
-  schedule:
-    - cron: '30 3 * * *'    # 9:00 AM IST (03:30 UTC)
-    - cron: '30 12 * * *'   # 6:00 PM IST (12:30 UTC)
-  workflow_dispatch:
-
-jobs:
-  update-readme:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: pip install openai
-
       - name: Generate AI Content
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -50,11 +26,3 @@ fact += response.choices[0].message.content.strip()
 with open("ai_content.md", "a") as f:
     f.write("\n\n" + fact)
 EOF
-
-      - name: Commit and Push changes
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add ai_content.md
-          git commit -m "chore: update daily AI content" || echo "No changes to commit"
-          git push
