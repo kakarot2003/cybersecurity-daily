@@ -1,0 +1,56 @@
+name: Daily AI Commit
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # Runs every day at 06:00 UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Generate AI Content
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          echo "## Daily Cybersecurity Note 🚀" > ai_content.md
+          echo "" >> ai_content.md
+          python - <<EOF
+import openai, os, datetime
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+prompt = "Give me one short but useful cybersecurity tip or fact in 2-3 sentences. Keep it professional."
+response = openai.Completion.create(
+    engine="text-davinci-003",
+    prompt=prompt,
+    max_tokens=80,
+    temperature=0.7
+)
+
+fact = f"### {datetime.datetime.utcnow().strftime('%Y-%m-%d')}\n\n"
+fact += response.choices[0].text.strip()
+
+with open("ai_content.md", "a") as f:
+    f.write("\\n\\n" + fact)
+EOF
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add ai_content.md
+          git commit -m "chore: update daily AI content"
+          git push
