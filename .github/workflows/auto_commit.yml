@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '30 3 * * *'    # 9:00 AM IST (03:30 UTC)
     - cron: '30 12 * * *'   # 6:00 PM IST (12:30 UTC)
-  workflow_dispatch:         # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   update-readme:
@@ -29,29 +29,27 @@ jobs:
           echo "## Daily Cybersecurity Note 🚀" > ai_content.md
           echo "" >> ai_content.md
           python - <<EOF
-import os
-from datetime import datetime, timezone
-from openai import OpenAI
+          import os
+          from datetime import datetime, timezone
+          from openai import OpenAI
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+          client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-prompt = "Give me one short but useful cybersecurity tip or fact in 2-3 sentences. Keep it professional."
+          prompt = "Give me one short but useful cybersecurity tip or fact in 2-3 sentences. Keep it professional."
 
-response = client.chat.completions.create(
-    model="gpt-3.5-turbo",   # or gpt-4o-mini if you want faster/cheaper
-    messages=[{"role": "user", "content": prompt}],
-    max_tokens=80,
-    temperature=0.7
-)
+          response = client.chat.completions.create(
+              model="gpt-3.5-turbo",
+              messages=[{"role": "user", "content": prompt}],
+              max_tokens=80,
+              temperature=0.7
+          )
 
-# Add date in UTC (so you know when it ran)
-fact = f"### {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n\n"
-fact += response.choices[0].message.content.strip()
+          fact = f"### {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n\n"
+          fact += response.choices[0].message.content.strip()
 
-with open("ai_content.md", "a") as f:
-    f.write("\\n\\n" + fact)
-EOF
+          with open("ai_content.md", "a") as f:
+              f.write("\n\n" + fact)
+          EOF
 
       - name: Commit and Push changes
         run: |
