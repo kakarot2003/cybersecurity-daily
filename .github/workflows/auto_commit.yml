@@ -2,8 +2,8 @@ name: Daily AI Commit
 
 on:
   schedule:
-    - cron: '30 3 * * *'    # 9:00 AM IST (03:30 UTC)
-    - cron: '30 12 * * *'   # 6:00 PM IST (12:30 UTC)
+    - cron: '30 3 * * *'    # 9:00 AM IST
+    - cron: '30 12 * * *'   # 6:00 PM IST
   workflow_dispatch:
 
 jobs:
@@ -56,5 +56,5 @@ EOF
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add ai_content.md
-          git commit -m "chore: update daily AI content"
+          git commit -m "chore: update daily AI content" || echo "No changes to commit"
           git push
